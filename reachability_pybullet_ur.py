@@ -11,7 +11,7 @@ p.connect(p.GUI)  # 使用GUI连接来显示机械臂的3D模型
 p.setAdditionalSearchPath(pybullet_data.getDataPath())  # 设置URDF文件的搜索路径
 
 # 加载UR机械臂的URDF文件（例如UR10）
-robot_id = p.loadURDF("./ur_description/urdf/ur10.urdf", useFixedBase=True)
+robot_id = p.loadURDF("./ur_description/urdf/ur5.urdf", useFixedBase=True)
 
 # 获取机械臂关节信息
 num_joints = p.getNumJoints(robot_id)
@@ -21,6 +21,8 @@ for joint_index in range(num_joints):
     # 检查关节是否为可运动关节 (即非固定关节)
     if joint_info[2] == p.JOINT_REVOLUTE:  # 只记录旋转关节
         joint_ranges.append((joint_info[8], joint_info[9]))  # 关节的最小值和最大值
+print(joint_ranges)
+joint_ranges = np.array(joint_ranges)
 
 # 采样数量
 num_samples = 10000  # 降低样本数以提高效率
@@ -32,8 +34,10 @@ for _ in range(num_samples):
     joint_positions = []
     for min_val, max_val in joint_ranges:
         joint_positions.append(random.uniform(min_val, max_val))
-
-    # 设置关节位置
+    # joint_positions[1]=0
+    # joint_positions[2]=0
+    # joint_positions[3]=0
+    joint_positions = [0] + joint_positions[:-1]    # 设置关节位置
     p.setJointMotorControlArray(
         bodyIndex=robot_id,
         jointIndices=list(range(len(joint_ranges))),
